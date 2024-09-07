@@ -1,0 +1,129 @@
+# @package _group_
+
+common:
+  fp16: &fp16 false 
+  # amp: &fp16 true 
+  fp16_no_flatten_grads: true
+  log_format: json
+  log_interval: 100
+  seed: 1337
+  tensorboard_logdir: ???
+  user_dir: examples/reconstruct_dhubert 
+
+checkpoint:
+  save_dir: ???
+  save_interval_updates: 7500
+  keep_interval_updates: 1
+  no_epoch_checkpoints: true
+  reset_dataloader: true
+  reset_meters: true
+  reset_lr_scheduler: true
+  reset_optimizer: true
+
+distributed_training:
+  ddp_backend: no_c10d
+  distributed_world_size: ???
+  distributed_backend: 'nccl'
+  find_unused_parameters: true
+
+task:
+  _name: ec_pretraining
+  data: ???
+  audio_home: ???
+  pitch_home: ???
+  fbank_home: ???
+  sample_rate: 16000
+  max_sample_size: 320000
+  min_sample_size: 16000
+  pad_audio: true
+  random_crop: false
+  normalize: false # must be consistent with extractor
+  vocab_name: sp_model_10000.txt
+  stage: 2
+  downstream_checkpoint: ???
+  pad_tgt_length: 480000
+
+dataset:
+  train_subset: train_test_info
+  valid_subset: dev_info
+  num_workers: 4
+  max_tokens: 12960000
+  max_tokens_valid: 1296000
+  validate_interval: 1
+  validate_interval_updates: 10000000
+
+criterion:
+  _name: dcodec_reconstruct
+  loss_weights:
+    fbank_loss_0: 10.0
+    fbank_loss_1: 10.0
+    diff_loss: 10.0
+    update_freq: [2]
+     
+optimization:
+  max_update: 75000
+  lr: [0.0005]
+  clip_norm: 10.0
+
+optimizer:
+  _name: adam
+  adam_betas: (0.8, 0.9)
+  adam_eps: 1e-06
+  weight_decay: 0.01
+
+lr_scheduler:
+  _name: cosine
+  warmup_updates: 7500
+
+model:
+  _name: pm_ecvc_fm
+  spk_hidden_dim: 256
+  spk_ker_size: 5
+  spk_pool_size: 5
+  spk_dropout: 0.4
+
+  emo_hidden_dim: 256
+  emo_ker_size: 5
+  emo_pool_size: 5
+  emo_dropout: 0.4
+
+  asr_hidden_dim: 1024
+  asr_bidirection: true
+  asr_lstm_layer: 2
+
+  compensator_hidden_dim: 256
+  compensator_lstm_layer: 2
+  compensator_lstm_dropout: 0.1
+  compensator_conv_ker: 3
+
+  decoder_resnet_conv_ker: 3
+  decoder_resnet_dilation: 2
+  decoder_resnet_layers: 4
+  decoder_n_filters: 160
+  decoder_in_kernel_size: 7
+  decoder_resnet_compress: 2
+  decoder_hidden_dim: 1024
+  decoder_lstm_layer: 2
+  decoder_dropout: 0.1
+  decoder_causal: true
+
+  decoder_fm_attention_head_dim: 64
+  decoder_fm_n_blocks: 1
+  decoder_fm_num_mid_blocks: 2
+  decoder_fm_num_heads: 2
+  decoder_fm_act_fn: snakebeta
+
+  n_mel: 80
+  emo_num: 8
+  spk_num: 2808
+
+  upstream: whisper
+  upstream_ckpt: /Work20/2023/wangtianrui/model_temp/whisper/small
+  upstream_num_hidden: 12
+  upstream_hidden_dim: 768
+
+  spec_aug: false
+  mask_T: 0
+  mask_F: 0
+  num_T: 0
+  num_F: 0

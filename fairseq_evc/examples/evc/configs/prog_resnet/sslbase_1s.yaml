@@ -1,0 +1,123 @@
+# @package _group_
+
+common:
+  # amp: &fp16 true 
+  fp16: &fp16 false 
+  fp16_no_flatten_grads: true
+  log_format: json
+  log_interval: 100
+  seed: 1337
+  tensorboard_logdir: ???
+  user_dir: examples/reconstruct_dhubert 
+
+checkpoint:
+  save_dir: ???
+  save_interval_updates: 6000
+  keep_interval_updates: 1
+  no_epoch_checkpoints: true
+  reset_dataloader: true
+  reset_meters: true
+  reset_lr_scheduler: true
+  reset_optimizer: true
+
+distributed_training:
+  ddp_backend: no_c10d
+  distributed_world_size: ???
+  distributed_backend: 'nccl'
+  find_unused_parameters: true
+
+task:
+  _name: ec_pretraining
+  data: ???
+  audio_home: ???
+  pitch_home: ???
+  fbank_home: ???
+  sample_rate: 16000
+  max_sample_size: 320000
+  min_sample_size: 16000
+  pad_audio: true
+  random_crop: false
+  normalize: false # s3prl has norm, so there set to false
+  vocab_name: sp_model_10000.txt
+  change_content: whisper
+  stage: 1
+  downstream_checkpoint: ???
+
+dataset:
+  train_subset: train_info
+  valid_subset: dev_info
+  num_workers: 4
+  max_tokens: 10000000
+  max_tokens_valid: 1000000
+  skip_invalid_size_inputs_valid_test: true
+  validate_interval: 1
+  validate_interval_updates: 500000000000
+
+criterion:
+  _name: dcodec_reconstruct
+  loss_weights:
+    ctc_score: 0.75
+    spk_score: 1.0
+    emo_score: 1.0
+     
+optimization:
+  max_update: 20000
+  lr: [0.0005]
+  clip_norm: 10.0
+
+optimizer:
+  _name: adam
+  adam_betas: (0.9,0.98)
+  adam_eps: 1e-06
+  weight_decay: 0.01
+
+lr_scheduler:
+  _name: polynomial_decay
+  warmup_updates: 2000
+
+model:
+  _name: pm_ecvc
+  spk_hidden_dim: 256
+  spk_ker_size: 5
+  spk_pool_size: 5
+  spk_dropout: 0.4
+
+  emo_hidden_dim: 256
+  emo_ker_size: 5
+  emo_pool_size: 5
+  emo_dropout: 0.4
+
+  asr_hidden_dim: 1024
+  asr_bidirection: true
+  asr_lstm_layer: 2
+
+  compensator_hidden_dim: 256
+  compensator_lstm_layer: 2
+  compensator_lstm_dropout: 0.1
+  compensator_conv_ker: 3
+
+  decoder_resnet_conv_ker: 3
+  decoder_resnet_dilation: 2
+  decoder_resnet_layers: 4
+  decoder_n_filters: 160
+  decoder_in_kernel_size: 7
+  decoder_resnet_compress: 2
+  decoder_hidden_dim: 1024
+  decoder_lstm_layer: 2
+  decoder_dropout: 0.1
+  decoder_causal: true
+
+  n_mel: 80
+  emo_num: 8
+  spk_num: 2808
+
+  upstream: ???
+  upstream_ckpt: ???
+  upstream_num_hidden: ???
+  upstream_hidden_dim: ???
+
+  spec_aug: true
+  mask_T: 40
+  mask_F: 50
+  num_T: 2
+  num_F: 4
