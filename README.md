@@ -11,6 +11,14 @@
 
 ## Configure the Environment for Codes
 
+```shell
+conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
+pip install -r requirements.txt
+pip install s3prl
+cd fairseq_evc
+pip install -e ./
+```
+
 ## Data Preparation
 
 Follow the steps in `./pretreatment` to create:
@@ -258,3 +266,5 @@ Special thanks to the following projects
 * [encodec-pytorch](https://github.com/ZhikangNiu/encodec-pytorch)
 
 * [encodec](https://github.com/facebookresearch/encodec)
+
+* [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS)
