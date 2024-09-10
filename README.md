@@ -23,7 +23,7 @@ Follow the steps in `./pretreatment` to create:
 
 * ### Training 4-stage Decoder with Pre-trained Models
 
-    * Download pre-trained model checkpoint and preset hyperparameters.
+    * #### Download pre-trained model checkpoint and preset hyperparameters.
 
         ```shell
         cd fairseq_evc
@@ -42,7 +42,7 @@ Follow the steps in `./pretreatment` to create:
         FBANK_HOME=   # a root path of mel-spec data
         ```
 
-    * Training 1-st stage (Speech Disentanglement Module)
+    * #### Training 1-st stage (Speech Disentanglement Module)
 
         ```shell
         cd fairseq_evc
@@ -66,7 +66,7 @@ Follow the steps in `./pretreatment` to create:
         ```
 
     
-    * Training 2-nd stage (Progressive generator, Compensator, and Flow Predictor)
+    * #### Training 2-nd stage (Progressive generator, Compensator, and Flow Predictor)
 
         ```shell
         cd fairseq_evc
@@ -88,7 +88,7 @@ Follow the steps in `./pretreatment` to create:
         model.upstream_hidden_dim=${NUM_DIM} 
         ```
 
-    * Training 2-nd stage (Progressive generator and Compensator, without Flow Predictor)
+    * #### Training 2-nd stage (Progressive generator and Compensator, without Flow Predictor)
 
         ```shell
         cd fairseq_evc
@@ -109,9 +109,9 @@ Follow the steps in `./pretreatment` to create:
         model.upstream_num_hidden=${NUM_LAYER} \ 
         model.upstream_hidden_dim=${NUM_DIM} 
         ```
-* Representating speech and reconstructing mel-spectrum via our trained model
+* ### Representating speech and reconstructing mel-spectrum via our trained model
 
-    * For model with flow predictor
+    * #### For model with flow predictor
 
         ```shell
         cd fairseq_evc
@@ -162,7 +162,7 @@ Follow the steps in `./pretreatment` to create:
         cat ${MEL_SAVE_HOME}/${file_name}_*_${#nps[@]} > ${MEL_SAVE_HOME}/${file_name}
         ```
 
-    * For model without flow predictor
+    * #### For model without flow predictor
         ```shell
         cd fairseq_evc
         train_tsv=${DATA}/train_info.tsv
@@ -206,11 +206,11 @@ Follow the steps in `./pretreatment` to create:
         cat ${MEL_SAVE_HOME}/${file_name}_*_${#nps[@]} > ${MEL_SAVE_HOME}/${file_name}
         ```
 
-* Fine-tune Hifi-GAN with reconstructed mel-spectrum
+* ### Fine-tune Hifi-GAN with reconstructed mel-spectrum
 
-    * First, download pre-trained generator and discriminator of hifi-gan from https://drive.google.com/drive/folders/11T-Z5Y8ijmvnEV2uv-9SniKXtefJ7fOA?usp=sharing to `model_temp` dir
+    * #### First, download pre-trained generator and discriminator of hifi-gan from https://drive.google.com/drive/folders/11T-Z5Y8ijmvnEV2uv-9SniKXtefJ7fOA?usp=sharing to `model_temp` dir
 
-    * Start Fine-tune
+    * #### Start Fine-tune
 
         ```shell
         cd hifi_gan
