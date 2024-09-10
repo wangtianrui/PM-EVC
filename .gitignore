@@ -35,6 +35,10 @@ wheels/
 log/
 logs/
 *.tmp
+exp/
+model_temp/
+emo_datasets/
+fbanks/
 
 # Checkpoints
 checkpoints

@@ -8,7 +8,7 @@ common:
   log_interval: 100
   seed: 1337
   tensorboard_logdir: ???
-  user_dir: examples/reconstruct_dhubert 
+  user_dir: examples/evc 
 
 checkpoint:
   save_dir: ???

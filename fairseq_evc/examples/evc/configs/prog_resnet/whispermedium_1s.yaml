@@ -8,7 +8,7 @@ common:
   log_interval: 100
   seed: 1337
   tensorboard_logdir: ???
-  user_dir: examples/reconstruct_dhubert 
+  user_dir: examples/evc 
 
 checkpoint:
   save_dir: ???
@@ -41,7 +41,7 @@ task:
   vocab_name: sp_model_10000.txt
   change_content: whisper
   stage: 1
-  downstream_checkpoint: ???
+  downstream_checkpoint: ""
   pad_tgt_length: 480000
 
 dataset:

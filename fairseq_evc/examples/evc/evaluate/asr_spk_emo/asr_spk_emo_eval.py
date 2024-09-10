@@ -166,7 +166,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--out_home', type=str)
     args = parser.parse_args()
     
-    import_user_module_via_dir(r"examples/reconstruct_dhubert")
+    import_user_module_via_dir(r"examples/evc")
     model, cfg, task = load_model_ensemble_and_task([args.checkpoint_path])
     model = model[0]
     model.eval()
