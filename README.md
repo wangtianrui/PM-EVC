@@ -62,8 +62,7 @@ Follow the steps in `./pretreatment` to create:
         model.upstream=${PM_NAME} \   
         model.upstream_ckpt=${PM_CKPT} \
         model.upstream_num_hidden=${NUM_LAYER} \ 
-        model.upstream_hidden_dim=${NUM_DIM} \ 
-        2>&1 | tee ${SAVE_HOME}/${PM_NAME}/1_stage/log.out
+        model.upstream_hidden_dim=${NUM_DIM} 
         ```
 
     
@@ -86,8 +85,7 @@ Follow the steps in `./pretreatment` to create:
         model.upstream=${PM_NAME} \   
         model.upstream_ckpt=${PM_CKPT} \
         model.upstream_num_hidden=${NUM_LAYER} \ 
-        model.upstream_hidden_dim=${NUM_DIM} \ 
-        2>&1 | tee ${SAVE_HOME}/${PM_NAME}/2_stage_fm/log.out
+        model.upstream_hidden_dim=${NUM_DIM} 
         ```
 
     * Training 2-nd stage (Progressive generator and Compensator, without Flow Predictor)
@@ -109,8 +107,7 @@ Follow the steps in `./pretreatment` to create:
         model.upstream=${PM_NAME} \   
         model.upstream_ckpt=${PM_CKPT} \
         model.upstream_num_hidden=${NUM_LAYER} \ 
-        model.upstream_hidden_dim=${NUM_DIM} \ 
-        2>&1 | tee ${SAVE_HOME}/${PM_NAME}/2_stage_wofm/log.out
+        model.upstream_hidden_dim=${NUM_DIM} 
         ```
 * Representating speech and reconstructing mel-spectrum via our trained model
 
@@ -231,62 +228,21 @@ Follow the steps in `./pretreatment` to create:
 ## Inference
 
 ```shell
-max_hifi_file=$(ls  /Work20/2023/wangtianrui/codes/util_repos/hifi-gan/exps/$CONFIGHOME/${MODEL_NAME} | grep -E '^g_[0-9]{8}$' | sort -V | tail -n 1)
-hifi_ckpt=${HIFI_SAVE}/${max_file}
-
-GPU_DEVICES=0
 # test
-neutral_man=/CDShare2/2023/wangtianrui/dataset/emo/MSP/podcast/Audios/MSP-PODCAST_2560_0309.wav
-sleep_woman=/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/resampled16k/EmoV-DB/EmoV-DB_sorted/bea/Sleepy/sleepiness_1-28_0015.wav
-angry_man=/CDShare2/2023/wangtianrui/dataset/emo/EmoV-DB/EmoV-DB_sorted/sam/Angry/anger_336-364_0349.wav
-sad_woman=/CDShare2/2023/wangtianrui/dataset/emo/Emotional_Speech_Dataset/0019/Sad/train/0019_001372.wav
-
-neutral_woman=/CDShare2/2023/wangtianrui/dataset/emo/MSP/podcast/Audios/MSP-PODCAST_0574_0042.wav
-happy_woman=/CDShare2/2023/wangtianrui/dataset/emo/Emotional_Speech_Dataset/0016/Happy/test/0016_000721.wav
-sad_man=/CDShare2/2023/wangtianrui/dataset/emo/MSP/podcast/Audios/MSP-PODCAST_2894_0284.wav
-
-tasks=("wav2vec2base")
-for task in "${tasks[@]}"; do
-CKPT_NAME=${task}
-CONFIG_NAME=prog_resnet
-log_home=/Work20/2023/wangtianrui/codes/util_repos/fairseq_zhikangniu/examples/reconstruct_dhubert/logs/ecvc/${CONFIG_NAME}/
-PYTHONPATH=/Work20/2023/wangtianrui/codes/util_repos/fairseq_zhikangniu \
-CUDA_VISIBLE_DEVICES=$GPU_DEVICES \
-/Work21/2023/wangtianrui/miniconda3/envs/tts/bin/python -u /Work20/2023/wangtianrui/codes/util_repos/fairseq_zhikangniu/examples/reconstruct_dhubert/test/ecvc_single.py \
+OUT_HOME="/Work20/2023/wangtianrui/codes/open_source/PM-ECVC/fairseq_evc"
+cd fairseq_evc
+python -u /Work20/2023/wangtianrui/codes/util_repos/fairseq_zhikangniu/examples/reconstruct_dhubert/test/ecvc_single.py \
 --checkpoint_path $log_home/$CKPT_NAME/checkpoint_best.pt \
---source_wav $sad_man \
---target_spk_wav $happy_woman \
---target_emo_wav $angry_man \
---out_home $log_home/$CKPT_NAME
+--source_wav demos/sad_man.wav \
+--target_spk_wav demos/happy_girl.wav \
+--target_emo_wav demos/anger_man.wav \
+--out_home ${OUT_HOME}
 
-
-# hifi_ckpt="/Work20/2023/wangtianrui/codes/util_repos/hifi-gan/exps/emo/g_00660000"
-max_file=$(ls  /Work20/2023/wangtianrui/codes/util_repos/hifi-gan/exps/$CONFIG_NAME/${CKPT_NAME} | grep -E '^g_[0-9]{8}$' | sort -V | tail -n 1)
-hifi_ckpt=/Work20/2023/wangtianrui/codes/util_repos/hifi-gan/exps/$CONFIG_NAME/${CKPT_NAME}/${max_file}
-
-PYTHONPATH=/Work20/2023/wangtianrui/codes/util_repos/hifi-gan \
-CUDA_VISIBLE_DEVICES=$GPU_DEVICES \
-/Work21/2023/wangtianrui/miniconda3/envs/tts/bin/python -u /Work20/2023/wangtianrui/codes/util_repos/hifi-gan/inference_ecvc.py \
---fbank $log_home/$CKPT_NAME/spk_cv_fbank.npy \
---checkpoint_path $hifi_ckpt
-
-PYTHONPATH=/Work20/2023/wangtianrui/codes/util_repos/hifi-gan \
-CUDA_VISIBLE_DEVICES=$GPU_DEVICES \
-/Work21/2023/wangtianrui/miniconda3/envs/tts/bin/python -u /Work20/2023/wangtianrui/codes/util_repos/hifi-gan/inference_ecvc.py \
---fbank $log_home/$CKPT_NAME/emo_cv_fbank.npy \
---checkpoint_path $hifi_ckpt
-
-PYTHONPATH=/Work20/2023/wangtianrui/codes/util_repos/hifi-gan \
-CUDA_VISIBLE_DEVICES=$GPU_DEVICES \
-/Work21/2023/wangtianrui/miniconda3/envs/tts/bin/python -u /Work20/2023/wangtianrui/codes/util_repos/hifi-gan/inference_ecvc.py \
---fbank $log_home/$CKPT_NAME/spk_emo_fbank.npy \
---checkpoint_path $hifi_ckpt
-
-PYTHONPATH=/Work20/2023/wangtianrui/codes/util_repos/hifi-gan \
-CUDA_VISIBLE_DEVICES=$GPU_DEVICES \
-/Work21/2023/wangtianrui/miniconda3/envs/tts/bin/python -u /Work20/2023/wangtianrui/codes/util_repos/hifi-gan/inference_ecvc.py \
---fbank $log_home/$CKPT_NAME/reco_fbank.npy \
---checkpoint_path $hifi_ckpt
+cd hifi_gan
+for item in ("spk_cv_fbank" "emo_cv_fbank" "spk_emo_fbank" "reco_fbank"); do
+    python -u inference_ecvc.py \
+    --fbank ${OUT_HOME}/${item}.npy \
+    --checkpoint_path ${HIFI_SAVE}/$(ls  ${HIFI_SAVE} | grep -E '^g_[0-9]{8}$' | sort -V | tail -n 1)
 done
 ```
 
