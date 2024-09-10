@@ -246,3 +246,15 @@ for item in ("spk_cv_fbank" "emo_cv_fbank" "spk_emo_fbank" "reco_fbank"); do
 done
 ```
 
+# Credits
+Special thanks to the following projects
+
+* [s3prl](https://github.com/s3prl/s3prl)
+
+* [fairseq](https://github.com/facebookresearch/fairseq)
+
+* [hifi-gan](https://github.com/jik876/hifi-gan)
+
+* [encodec-pytorch](https://github.com/ZhikangNiu/encodec-pytorch)
+
+* [encodec](https://github.com/facebookresearch/encodec)
