@@ -50,7 +50,7 @@ Follow the steps in `./pretreatment` to create:
         FBANK_HOME=   # a root path of mel-spec data
         ```
 
-    * #### Training 1-st stage (Speech Disentanglement Module)
+    * #### Training the 1st stage (Speech Disentanglement Module)
 
         ```shell
         cd fairseq_evc
@@ -74,7 +74,7 @@ Follow the steps in `./pretreatment` to create:
         ```
 
     
-    * #### Training 2-nd stage (Progressive generator, Compensator, and Flow Predictor)
+    * #### Training the 2nd stage (Progressive generator, Compensator, and Flow Predictor)
 
         ```shell
         cd fairseq_evc
@@ -96,7 +96,7 @@ Follow the steps in `./pretreatment` to create:
         model.upstream_hidden_dim=${NUM_DIM} 
         ```
 
-    * #### Training 2-nd stage (Progressive generator and Compensator, without Flow Predictor)
+    * #### Training the 2nd stage (Progressive generator and Compensator, without Flow Predictor)
 
         ```shell
         cd fairseq_evc
