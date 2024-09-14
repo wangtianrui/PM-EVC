@@ -9,7 +9,22 @@ import numpy as np
 from moviepy.editor import AudioFileClip
 import ffmpeg
 import re
-# https://tspace.library.utoronto.ca/handle/1807/24487
+from scipy.io.wavfile import write as write_wav
+import librosa as lib
+
+def save_wav(save_path, audio, sr=16000):
+    '''Function to write audio'''
+    save_path = os.path.abspath(save_path)
+    destdir = os.path.dirname(save_path)
+    if not os.path.exists(destdir):
+        try:
+            os.makedirs(destdir)
+        except:
+            pass
+    write_wav(save_path, sr, audio)
+    return
+
+# 
 def convert2wav(path):
     save_path = path.split(".")[0] + ".wav"
     if os.path.exists(save_path):
@@ -25,6 +40,9 @@ def find_spk(text):
     return matches
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    args = parser.parse_args()
     emo_dict = {
         "sad": "sad",
         "happy": "happy",
@@ -35,8 +53,9 @@ if __name__ == "__main__":
         "neutral": "neutral",
     }
     
-    
-    root = r"/CDShare2/2023/wangtianrui/dataset/emo/TESS"
+    # https://tspace.library.utoronto.ca/handle/1807/24487
+    data_name = "TESS"
+    root = os.path.join(args.data_home, data_name)
     search_path = os.path.join(root, "**/*." + "wav")
     
     # name, sample_rate, length, emo, trans
@@ -46,7 +65,13 @@ if __name__ == "__main__":
             audio, sr = sf.read(file_path)
             if len(audio.shape) > 1:
                 audio = audio[0]
-            
+                
+            if sr != 16000:
+                file_path = file_path.replace(f"/{data_name}/", f"/{data_name}_16k/")
+                audio = lib.resample(audio, orig_sr=sr, target_sr=16000)
+                save_wav(file_path, audio)
+                sr = 16000
+                
             spk, trans, emo = os.path.basename(file_path).split(".")[0].split("_")
             
             emo = emo_dict[emo]

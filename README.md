@@ -21,7 +21,7 @@ pip install -e ./
 
 ## Data Preparation
 
-Follow the steps in `./pretreatment` to create:
+Follow the steps in [`./pretreatment`](https://github.com/wangtianrui/PM-EVC/blob/master/fairseq_evc/examples/evc/pretreatment/README.md) to create:
 
  * `{train_info,dev_info,test_info}.tsv` waveform list files with transcription, emotion label, and speaker label.
  * Mel-spectrogram features of all speech data.
@@ -44,10 +44,10 @@ Follow the steps in `./pretreatment` to create:
 
         GPU_NUM=2
 
-        DATA=    # a directory contains {train_info,dev_info}.tsv 
-        AUDIO_HOME=    # a root path of audio data
-        PITCH_HOME=   # a root path of pitch data (it's noly needed for ProgRE)
-        FBANK_HOME=   # a root path of mel-spec data
+        DATA=${DATA_HOME}/english_emo_data/ # a directory contains {train_info, dev_info}.tsv, 
+        AUDIO_HOME=${DATA_HOME}    # a root path of audio data, ${DATA_HOME} in data pretreatment 
+        PITCH_HOME=${DATA_HOME}/pitch   # a root path of pitch data (it's noly needed for ProgRE)
+        FBANK_HOME=${DATA_HOME}/fbank   # a root path of mel-spec data
         ```
 
     * #### Training the 1st stage (Speech Disentanglement Module)
@@ -230,8 +230,7 @@ Follow the steps in `./pretreatment` to create:
         --input_validation_file ${MEL_SAVE_HOME}/dev_info.tsv \
         --checkpoint_path $HIFI_SAVE \
         --pretrained_g ./model_temp/g_00500000 \
-        --pretrained_d ./model_temp/do_00500000 \
-        2>&1 | tee $HIFI_SAVE/log.out
+        --pretrained_d ./model_temp/do_00500000 
         ```
 ## Inference
 
@@ -268,3 +267,7 @@ Special thanks to the following projects
 * [encodec](https://github.com/facebookresearch/encodec)
 
 * [Matcha-TTS](https://github.com/shivammehta25/Matcha-TTS)
+
+* [Wespeaker](https://github.com/wenet-e2e/wespeaker)
+
+* [Whisper](https://github.com/openai/whisper)

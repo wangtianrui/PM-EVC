@@ -9,7 +9,22 @@ import numpy as np
 from moviepy.editor import AudioFileClip
 import ffmpeg
 import re
-# https://hltsingapore.github.io/ESD/
+from scipy.io.wavfile import write as write_wav
+import librosa as lib
+
+def save_wav(save_path, audio, sr=16000):
+    '''Function to write audio'''
+    save_path = os.path.abspath(save_path)
+    destdir = os.path.dirname(save_path)
+    if not os.path.exists(destdir):
+        try:
+            os.makedirs(destdir)
+        except:
+            pass
+    write_wav(save_path, sr, audio)
+    return
+
+# 
 def contains_chinese(s):
     return re.search(r'[\u4e00-\u9fff]+', s) is not None
 
@@ -38,6 +53,9 @@ def get_all_wavs(root, suffix):
     return list(set(files))
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    args = parser.parse_args()
     emo_dict = {
         "Sad": "sad",
         "Happy": "happy",
@@ -46,9 +64,10 @@ if __name__ == "__main__":
         "Neutral": "neutral",
     }
     
-    root = r"/CDShare2/2023/wangtianrui/dataset/emo/Emotional_Speech_Dataset"
+    # download data from https://hltsingapore.github.io/ESD/
+    data_name = "Emotional_Speech_Dataset"
+    root = os.path.join(args.data_home, data_name)
     trans_dict = {}
-    
     for path in get_all_wavs(root, "txt"):
         with open(path, "r") as rf:
             if path.find("ReadMe") != -1:
@@ -78,6 +97,13 @@ if __name__ == "__main__":
                     audio, sr = sf.read(path)
                     if len(audio.shape) > 1:
                         audio = audio[0]
+                    
+                    if sr != 16000:
+                        path = path.replace(f"/{data_name}/", f"/{data_name}_16k/")
+                        audio = lib.resample(audio, orig_sr=sr, target_sr=16000)
+                        save_wav(path, audio)
+                        sr = 16000
+                        
                     if path.find("train") != -1:
                         out_file = train_f
                     elif path.find("test") != -1:

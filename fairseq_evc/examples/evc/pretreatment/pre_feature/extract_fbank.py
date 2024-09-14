@@ -65,24 +65,27 @@ def mel_spectrogram(y, n_fft, num_mels, sampling_rate, hop_size, win_size, fmin,
     return spec
 
 from tqdm import tqdm
-with torch.no_grad():
-    info = r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/all_info.tsv"
-    with open(info, "r") as rf:
-        for line in tqdm(rf.readlines()):
-            path = line.split("\t")[0]
-            sr = line.split("\t")[1]
-            save_path = path.replace(
-                "/CDShare2/2023/wangtianrui/dataset/emo",
-                "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/fbank"
-            ).replace(
-                "/CDShare3/2023/wangtianrui",
-                "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/fbank"
-            ).split(".")[0] + ".npy"
-            audio, sampling_rate = lib.load(path, sr=16000)
-            audio = normalize(audio) * 0.95
-            audio = torch.FloatTensor(audio)
-            audio = audio.unsqueeze(0)
-            mel = mel_spectrogram(audio, 1024, 80, 16000, 320, 1024, 80, 8000, center=False).detach().cpu().numpy()[0]
-            if not os.path.exists(os.path.dirname(save_path)):
-                os.makedirs(os.path.dirname(save_path))
-            np.save(save_path, mel)
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    parser.add_argument('--cluster-speaker-num', type=int)
+    args = parser.parse_args()
+    with torch.no_grad():
+        info = args.data_home+f"/english_emo_data/all_info_with_cluster_{args.cluster_speaker_num}_spk.tsv"
+        with open(info, "r") as rf:
+            for line in tqdm(rf.readlines()):
+                path = line.split("\t")[0]
+                sr = line.split("\t")[1]
+                save_path = path.replace(
+                    args.data_home,
+                    args.data_home+"/fbank"
+                ).split(".")[0] + ".npy"
+                audio, sampling_rate = lib.load(path, sr=16000)
+                audio = normalize(audio) * 0.95
+                audio = torch.FloatTensor(audio)
+                audio = audio.unsqueeze(0)
+                mel = mel_spectrogram(audio, 1024, 80, 16000, 320, 1024, 80, 8000, center=False).detach().cpu().numpy()[0]
+                if not os.path.exists(os.path.dirname(save_path)):
+                    os.makedirs(os.path.dirname(save_path))
+                np.save(save_path, mel)

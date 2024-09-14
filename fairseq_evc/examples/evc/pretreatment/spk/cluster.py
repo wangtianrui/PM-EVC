@@ -94,11 +94,16 @@ def cluster(embeddings, p=.01, num_spks=None, min_num_spks=1, max_num_spks=20):
         return labels
 
 if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    parser.add_argument('--cluster-speaker-num', type=int)
+    args = parser.parse_args()
     infos = {}
     spk_embs = {}
     all_spks = []
-    with open(r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/all_info.tsv", "r") as rf:
-        with open(r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/spk_emb/km_models/all_info.tsv", "w") as wf:
+    with open(args.data_home+"/english_emo_data/all_info.tsv", "r") as rf:
+        with open(args.data_home+f"/english_emo_data/all_info_with_cluster_{args.cluster_speaker_num}_spk.tsv", "w") as wf:
             lines = [i.strip() for i in rf.readlines()]
             for line in tqdm(lines):
                 temp = line.split("\t")
@@ -107,11 +112,8 @@ if __name__ == "__main__":
                 else:
                     path, sr, length, spk, emo, level, o_trans, emo2 = temp
                 npy_path = path.replace(
-                    "/CDShare2/2023/wangtianrui/dataset/emo",
-                    "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/spk_emb"
-                ).replace(
-                    "/CDShare3/2023/wangtianrui",
-                    "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/spk_emb"
+                    args.data_home,
+                    args.data_home+"/english_emo_data/spk_emb"
                 ).split(".")[0] + ".npy"
                 all_spks.append(spk)
                 if spk.split("|")[1] != "_" and spk.split("|")[1] != "Unknown":
@@ -125,38 +127,37 @@ if __name__ == "__main__":
                     spk_embs[data_name].append(np.load(npy_path))
                     infos[data_name].append(line)
     
-    print(spk_embs.keys())
-    rest_infos = []
-    rest_spk_emb = []
-    data_names = []
-    for data_name in spk_embs.keys(): # only iemocap miss spk
-        rest_infos = rest_infos + infos[data_name]
-        rest_spk_emb = rest_spk_emb + spk_embs[data_name]
-        data_names = data_names + [data_name, ] * len(spk_embs[data_name])
-        
-    rest_spk_emb = np.stack(rest_spk_emb, axis=0)
-    print(rest_spk_emb.shape)
-    
-    spk_num = 100
-    temp_all_spks = copy(all_spks)
-    labels = cluster(rest_spk_emb,
-                    num_spks=spk_num,
-                    min_num_spks=5,
-                    max_num_spks=100)
-    # print(labels)
-    label_infos = {}
-    with open("/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/spk_emb/km_models/missed_%d.tsv"%(spk_num), "w") as wf:
-        with open("/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/spk_emb/km_models/spkdict_%d.json"%(spk_num), "w") as wf2:
-            for i in range(rest_spk_emb.shape[0]):
-                temp = rest_infos[i].split("\t")
-                if len(temp) != 8:
-                    (path, sr, length, spk, emo, level), o_trans, emo2 = temp[:6], " ".join(temp[7:-1]), temp[-1]
-                else:
-                    path, sr, length, spk, emo, level, o_trans, emo2 = temp
-                spk = data_names[i]+"_clustr|"+str(labels[i])
-                temp_all_spks.append(spk)
-                print("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"%(path, sr, length, spk, emo, level, o_trans, emo2), file=wf)
-            unique_spks = list(set(temp_all_spks))
-            spk_dict = {spk: idx for idx, spk in enumerate(unique_spks)}
-            json.dump(spk_dict, wf2)
-        
+            print(spk_embs.keys())
+            rest_infos = []
+            rest_spk_emb = []
+            data_names = []
+            for data_name in spk_embs.keys(): # only iemocap miss spk
+                rest_infos = rest_infos + infos[data_name]
+                rest_spk_emb = rest_spk_emb + spk_embs[data_name]
+                data_names = data_names + [data_name, ] * len(spk_embs[data_name])
+                
+            rest_spk_emb = np.stack(rest_spk_emb, axis=0)
+            print(rest_spk_emb.shape)
+            
+            spk_num = args.cluster_speaker_num
+            temp_all_spks = copy(all_spks)
+            labels = cluster(rest_spk_emb,
+                            num_spks=spk_num,
+                            min_num_spks=5,
+                            max_num_spks=spk_num)
+            # print(labels)
+            label_infos = {}
+            with open(args.data_home+"/english_emo_data/spk_emb/spkdict_%d.json"%(spk_num), "w") as wf2:
+                for i in range(rest_spk_emb.shape[0]):
+                    temp = rest_infos[i].split("\t")
+                    if len(temp) != 8:
+                        (path, sr, length, spk, emo, level), o_trans, emo2 = temp[:6], " ".join(temp[7:-1]), temp[-1]
+                    else:
+                        path, sr, length, spk, emo, level, o_trans, emo2 = temp
+                    spk = data_names[i]+"_clustr|"+str(labels[i])
+                    temp_all_spks.append(spk)
+                    print("%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s"%(path, sr, length, spk, emo, level, o_trans, emo2), file=wf)
+                unique_spks = list(set(temp_all_spks))
+                spk_dict = {spk: idx for idx, spk in enumerate(unique_spks)}
+                json.dump(spk_dict, wf2)
+                

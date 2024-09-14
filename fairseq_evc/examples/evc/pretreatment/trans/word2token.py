@@ -60,8 +60,12 @@ def gen_vocab(
             f_out.write(f"{s} 1\n")
 
 if __name__ == "__main__":
-    # norm = EnglishTextNormalizer()
-    root = r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data"
+    import argparse
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    parser.add_argument('--vocab-size', type=int)
+    args = parser.parse_args()
+    root = args.data_home + "/english_emo_data"
     with open(os.path.join(root, "all_info.tsv"), "r") as rf:
         with open(os.path.join(root, "all_trans.tsv"), "w") as wf:
             for line in rf.readlines():
@@ -73,7 +77,7 @@ if __name__ == "__main__":
                 print(normalize_text(o_trans).upper(), file=wf)
     gen_vocab(
         Path(os.path.join(root, "all_trans.tsv")),
-        Path(os.path.join(root, "sp_model_1000")),
+        Path(os.path.join(root, "sp_model")),
         model_type="unigram",
-        vocab_size=1000,
+        vocab_size=args.vocab_size,
     )

@@ -6,9 +6,22 @@ import soundfile as sf
 from tqdm import tqdm
 import pandas as pd
 import numpy as np
-from moviepy.editor import AudioFileClip
 import ffmpeg
-# https://www.openslr.org/136
+from scipy.io.wavfile import write as write_wav
+import librosa as lib
+
+def save_wav(save_path, audio, sr=16000):
+    '''Function to write audio'''
+    save_path = os.path.abspath(save_path)
+    destdir = os.path.dirname(save_path)
+    if not os.path.exists(destdir):
+        try:
+            os.makedirs(destdir)
+        except:
+            pass
+    write_wav(save_path, sr, audio)
+    return
+
 def convert2wav(path):
     save_path = path.split(".")[0] + ".wav"
     if os.path.exists(save_path):
@@ -19,6 +32,9 @@ def convert2wav(path):
     return save_path
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    args = parser.parse_args()
     emo_dict = {
         "Sad": "sad",
         "Neutral": "neutral",
@@ -36,12 +52,11 @@ if __name__ == "__main__":
         "HI": "high",
         "XX": "unspecified"
     }
+    # download data from https://www.openslr.org/136
+    data_name = "EMNS"
+    root = os.path.join(args.data_home, data_name)
     
-    meta_infos = pd.read_csv(r"/CDShare2/2023/wangtianrui/dataset/emo/EMNS/metadata.csv", sep='|')
-    print(meta_infos.head(5))
-    
-    root = r"/CDShare2/2023/wangtianrui/dataset/emo/EMNS/"
-    
+    meta_infos = pd.read_csv(os.path.join(root, data_name, "metadata.csv"), sep='|')
     # name, sample_rate, length, emo, trans
     with open(os.path.join(root, "info.tsv"), "w") as train_f:
         for id, utterance, _, emo, _, _, gender, age, level, name, spk in tqdm(np.array(meta_infos)):
@@ -51,6 +66,12 @@ if __name__ == "__main__":
             audio, sr = sf.read(file_path)
             if len(audio.shape) > 1:
                 audio = audio[0]
+            
+            if sr != 16000:
+                file_path = file_path.replace(f"/{data_name}/", f"/{data_name}_16k/")
+                audio = lib.resample(audio, orig_sr=sr, target_sr=16000)
+                save_wav(file_path, audio)
+                sr = 16000
             
             emo = emo_dict[emo]
             

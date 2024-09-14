@@ -1,6 +1,4 @@
-import os
 from tqdm import tqdm
-import random
 import json
 import sentencepiece as spm
 import re
@@ -13,50 +11,37 @@ def normalize_text(text):
     normalized_text = re.sub(r"[^\w\s']", "", normalized_text)
     return normalized_text.upper()
 
-sp = spm.SentencePieceProcessor()
-sp.load('/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/sp_model_10000.model')
+if __name__ == "__main__":
+    import argparse
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    args = parser.parse_args()
+    sp = spm.SentencePieceProcessor()
+    sp.load(args.data_home+'/english_emo_data/sp_model.model')
 
-with open(r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/ori_emo/eval_asr/path.txt", "r") as rf:
-    lines = rf.readlines()
-idx2path = {}
-infos = {}
-for line in tqdm(lines):
-    if len(line.strip()) < 1:
-        continue
-    idx, path = line.strip().split(" ")[0], " ".join(line.strip().split(" ")[1:])
-    audio, sr = sf.read(path)
-    if sr != 16000:
-        path = path.replace(
-            "/CDShare2/2023/wangtianrui/dataset/emo",
-            "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/resampled16k"
-        ).replace(
-            "/CDShare3/2023/wangtianrui",
-            "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/resampled16k"
-        ).split(".")[0] + ".wav"
-    idx2path[int(idx)] = path
-idx2trans = {}
-with open(r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/ori_emo/eval_asr/wer_detail.log", "r") as rf:
-    lines = rf.readlines()
-    last_id = -1
-    for line in tqdm(lines):
-        if len(line.strip()) < 1:
-            continue
-        if line.startswith("utt"):
-            id = int(line.strip().split(" ")[-1])
-        if line.startswith("WER"):
-            wer = float(line.strip().split(": ")[-1].split(" %")[0])
-        if line.startswith("lab"):
-            lab = line.strip().replace("lab: ", "")
-        if line.startswith("rec"):
-            rec = line.strip().replace("rec: ", "")
-            if id != last_id:
-                idx2trans[idx2path[id]] = {
-                    "lab": " ".join(sp.encode_as_pieces(normalize_text(lab))), 
-                    "rec": " ".join(sp.encode_as_pieces(normalize_text(rec))), 
-                    "wer":wer
-                }
-                last_id = id
+    idx2trans = {}
+    with open(args.data_home+"/english_emo_data/wer_detail.log", "r") as rf:
+        lines = rf.readlines()
+        last_id = -1
+        for line in tqdm(lines):
+            if len(line.strip()) < 1:
+                continue
+            if line.startswith("utt"):
+                path = int(line.strip().split(" ")[-1])
+            if line.startswith("WER"):
+                wer = float(line.strip().split(": ")[-1].split(" %")[0])
+            if line.startswith("lab"):
+                lab = line.strip().replace("lab: ", "")
+            if line.startswith("rec"):
+                rec = line.strip().replace("rec: ", "")
+                if path != last_path:
+                    idx2trans[path] = {
+                        "lab": " ".join(sp.encode_as_pieces(normalize_text(lab))), 
+                        "rec": " ".join(sp.encode_as_pieces(normalize_text(rec))), 
+                        "wer":wer
+                    }
+                    last_path = path
 
-with open('/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/ori_emo/eval_asr/wer.json', 'w') as json_file:
-    json.dump(idx2trans, json_file, indent=5, ensure_ascii=False)
-        
+    with open(args.data_home+'/english_emo_data/wer.json', 'w') as json_file:
+        json.dump(idx2trans, json_file, indent=5, ensure_ascii=False)
+            

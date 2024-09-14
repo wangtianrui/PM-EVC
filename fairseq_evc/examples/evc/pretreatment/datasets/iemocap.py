@@ -10,7 +10,22 @@ from moviepy.editor import AudioFileClip
 import ffmpeg
 import re
 from pathlib import Path
-# https://sail.usc.edu/iemocap/iemocap_release.htm
+from scipy.io.wavfile import write as write_wav
+import librosa as lib
+
+def save_wav(save_path, audio, sr=16000):
+    '''Function to write audio'''
+    save_path = os.path.abspath(save_path)
+    destdir = os.path.dirname(save_path)
+    if not os.path.exists(destdir):
+        try:
+            os.makedirs(destdir)
+        except:
+            pass
+    write_wav(save_path, sr, audio)
+    return
+
+# 
 
 def get_all_wavs(root):
     files = []
@@ -21,10 +36,10 @@ def get_all_wavs(root):
             files.append(str(s))
     return list(set(files))
 
-def get_emo_info():
+def get_emo_info(root):
     infos = {}
     trans_dict = {}
-    for name in glob.iglob("/CDShare3/2023/wangtianrui/IEMOCAP/Session*/dialog/transcriptions/*." + "txt", recursive=True):
+    for name in glob.iglob(os.path.join(root, "/Session*/dialog/transcriptions/*.") + "txt", recursive=True):
         with open(name) as rf:
             for line in rf.readlines():
                 if line.strip() == "":
@@ -42,7 +57,7 @@ def get_emo_info():
     info_line = re.compile(r'\[.+\]\n', re.IGNORECASE)
     start_times, end_times, wav_file_names, emotions, vals, acts, doms, trans = [], [], [], [], [], [], [], []
     for sess in range(1, 6):
-        emo_evaluation_dir = '/CDShare3/2023/wangtianrui/IEMOCAP/Session{}/dialog/EmoEvaluation/'.format(sess)
+        emo_evaluation_dir = os.path.join(root, '/Session{}/dialog/EmoEvaluation/'.format(sess))
         evaluation_files = [l for l in os.listdir(emo_evaluation_dir) if 'Ses' in l]
         for file in evaluation_files:
             print(emo_evaluation_dir + file)
@@ -91,6 +106,9 @@ def find_spk(text):
     return matches
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    args = parser.parse_args()
     emo_dict = {
         "sad": "sad",
         "neu": "neutral",
@@ -104,10 +122,12 @@ if __name__ == "__main__":
         "oth": "other",
         "dis": "disgust",
     }
-    df, infos = get_emo_info()
-    print(df.head(5))
     
-    root = r"/CDShare3/2023/wangtianrui/IEMOCAP"
+    # download data from https://sail.usc.edu/iemocap/iemocap_release.htm
+    data_name = "IEMOCAP"
+    root = os.path.join(args.data_home, data_name)
+    df, infos = get_emo_info(root)
+    print(df.head(5))
     search_path = os.path.join(root, "*/Session*/sentences/wav/*/*." + "wav")
     # name, sample_rate, length, emo, trans
     with open(os.path.join(root, "info.tsv"), "w") as train_f:
@@ -118,12 +138,14 @@ if __name__ == "__main__":
             print(file_path)
             emo, trans = infos[basename.split(".")[0]]
             audio, sr = sf.read(file_path)
+            if sr != 16000:
+                file_path = file_path.replace(f"/{data_name}/", f"/{data_name}_16k/")
+                audio = lib.resample(audio, orig_sr=sr, target_sr=16000)
+                save_wav(file_path, audio)
+                sr = 16000
             if len(audio.shape) > 1:
                 audio = audio[0]
-            
-            # spk = find_spk(file_path)[0]
             emo = emo_dict[emo]
-            
             print(
                 "{}\t{}\t{}\t{}\t{}\t{}\t{}".format(file_path, sr, len(audio), "_", emo, "_", trans), file=train_f
             )

@@ -9,7 +9,22 @@ import numpy as np
 from moviepy.editor import AudioFileClip
 import ffmpeg
 import re
-# https://affective-meld.github.io/
+from scipy.io.wavfile import write as write_wav
+import librosa as lib
+
+def save_wav(save_path, audio, sr=16000):
+    '''Function to write audio'''
+    save_path = os.path.abspath(save_path)
+    destdir = os.path.dirname(save_path)
+    if not os.path.exists(destdir):
+        try:
+            os.makedirs(destdir)
+        except:
+            pass
+    write_wav(save_path, sr, audio)
+    return
+
+# 
 def convert2wav(path):
     save_path = path.split(".")[0] + ".wav"
     if os.path.exists(save_path):
@@ -35,6 +50,9 @@ def get_all_wavs(root, suffix):
     return list(set(files))
 
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    args = parser.parse_args()
     emo_dict = {
         "sadness": "sad",
         "joy": "happy",
@@ -45,12 +63,15 @@ if __name__ == "__main__":
         "neutral": "neutral",
         "contempt": "contempt",
     }
+    # https://affective-meld.github.io/
+    data_name = "MELD"
+    root = os.path.join(args.data_home, data_name)
     
-    with open(os.path.join(r"/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw", "train_info.tsv"), "w") as train_f:
-        df = pd.read_csv(r"/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw/train_sent_emo.csv")
+    with open(os.path.join(root, "MELD_Raw", "train_info.tsv"), "w") as train_f:
+        df = pd.read_csv(os.path.join(root, "MELD_Raw", "train_sent_emo.csv"))
         for No,Utterance,Speaker,Emotion,Sentiment,Dialogue_ID,Utterance_ID,Season,Episode,StartTime,EndTime in np.array(df):
             file_path = os.path.join(
-                "/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw",
+                os.path.join(root, "MELD_Raw"),
                 "train_splits",
                 "dia%s_utt%s.mp4"%(Dialogue_ID, Utterance_ID),
             )
@@ -67,11 +88,11 @@ if __name__ == "__main__":
                 "{}\t{}\t{}\t{}\t{}\t{}\t{}".format(file_path, sr, len(audio), Speaker, emo, "_", trans), file=train_f
             )
     
-    with open(os.path.join(r"/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw", "test_info.tsv"), "w") as train_f:
-        df = pd.read_csv(r"/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw/test_sent_emo.csv")
+    with open(os.path.join(root, "MELD_Raw", "test_info.tsv"), "w") as train_f:
+        df = pd.read_csv(os.path.join(root, "MELD_Raw", "test_sent_emo.csv"))
         for No,Utterance,Speaker,Emotion,Sentiment,Dialogue_ID,Utterance_ID,Season,Episode,StartTime,EndTime in np.array(df):
             file_path = os.path.join(
-                "/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw",
+                os.path.join(root, "MELD_Raw"),
                 "output_repeated_splits_test",
                 "dia%s_utt%s.mp4"%(Dialogue_ID, Utterance_ID),
             )
@@ -87,12 +108,12 @@ if __name__ == "__main__":
             print(
                 "{}\t{}\t{}\t{}\t{}\t{}\t{}".format(file_path, sr, len(audio), Speaker, emo, "_", trans), file=train_f
             )
-    
-    with open(os.path.join(r"/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw", "dev_info.tsv"), "w") as train_f:
-        df = pd.read_csv(r"/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw/dev_sent_emo.csv")
+            
+    with open(os.path.join(root, "MELD_Raw", "dev_info.tsv"), "w") as train_f:
+        df = pd.read_csv(os.path.join(root, "MELD_Raw", "dev_sent_emo.csv"))
         for No,Utterance,Speaker,Emotion,Sentiment,Dialogue_ID,Utterance_ID,Season,Episode,StartTime,EndTime in np.array(df):
             file_path = os.path.join(
-                "/CDShare2/2023/wangtianrui/dataset/emo/MELD/MELD_Raw",
+                os.path.join(root, "MELD_Raw"),
                 "dev_splits_complete",
                 "dia%s_utt%s.mp4"%(Dialogue_ID, Utterance_ID),
             )

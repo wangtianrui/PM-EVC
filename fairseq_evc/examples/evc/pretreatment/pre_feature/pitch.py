@@ -33,18 +33,20 @@ def save_numpy(save_path, f0):
     return
 
 if __name__ == "__main__":
-    info = r"/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/all_info.tsv"
+    import argparse
+    parser = argparse.ArgumentParser(description='data')
+    parser.add_argument('--data-home', type=str)
+    parser.add_argument('--cluster-speaker-num', type=int)
+    args = parser.parse_args()
+    info = args.data_home+f"/english_emo_data/all_info_with_cluster_{args.cluster_speaker_num}_spk.tsv"
     with open(info, "r") as rf:
         for line in tqdm(rf.readlines()):
             path = line.split("\t")[0]
             sr = line.split("\t")[1]
             save_path = path.replace(
-                "/CDShare2/2023/wangtianrui/dataset/emo",
-                "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/pitch"
-            ).replace(
-                "/CDShare3/2023/wangtianrui",
-                "/CDShare2/2023/wangtianrui/dataset/emo/english_emo_data/pitch"
-            ).split(".")[0] + ".npy"
+                    args.data_home,
+                    args.data_home+"/pitch"
+                ).split(".")[0] + ".npy"
             if os.path.exists(save_path):
                 if np.load(save_path).shape[0] != 80:
                     continue
