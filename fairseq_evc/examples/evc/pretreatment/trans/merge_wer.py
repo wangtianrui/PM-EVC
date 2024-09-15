@@ -42,6 +42,6 @@ if __name__ == "__main__":
                     }
                     last_path = path
 
-    with open(args.data_home+'/english_emo_data/wer.json', 'w') as json_file:
+    with open(args.data_home+'/english_emo_data/whisper_wer.json', 'w') as json_file:
         json.dump(idx2trans, json_file, indent=5, ensure_ascii=False)
             

@@ -33,12 +33,14 @@ wheels/
 *.out
 *.log
 log/
+outputs/
 logs/
 *.tmp
 exp/
 model_temp/
 emo_datasets/
 fbanks/
+debug/
 
 # Checkpoints
 checkpoints

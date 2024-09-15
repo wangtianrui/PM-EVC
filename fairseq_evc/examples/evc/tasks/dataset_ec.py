@@ -94,7 +94,8 @@ class EVCDataset(FairseqDataset):
         self.label2wav_rate = self.sample_rate // self.label_rate
         self.max_label_size = self.max_sample_size // self.label2wav_rate
         self.fbank_home = fbank_home
-        self.audio_home = audio_home.split(";")
+        self.audio_home = audio_home.split("$")
+        print(self.audio_home)
         self.asr_dict = asr_dict
         assert self.max_sample_size >= max_keep_sample_size, "max_sample_size should be larger than max_keep_sample_size"
         

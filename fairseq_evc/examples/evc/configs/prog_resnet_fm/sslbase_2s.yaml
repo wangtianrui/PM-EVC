@@ -27,7 +27,7 @@ distributed_training:
   find_unused_parameters: true
 
 task:
-  _name: ec_pretraining
+  _name: evc
   data: ???
   audio_home: ???
   pitch_home: ???
@@ -38,7 +38,7 @@ task:
   pad_audio: true
   random_crop: false
   normalize: false # must be consistent with extractor
-  vocab_name: sp_model_10000.txt
+  vocab_name: sp_model.txt
   stage: 2
   downstream_checkpoint: ???
 

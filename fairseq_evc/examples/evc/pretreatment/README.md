@@ -43,7 +43,7 @@
 
 * *trans* directory
   
-  * The `word2token.py` script tokenizes English text using a unigram model with a vocabulary size of `VOCAL_SIZE` for ASR training. This unigram model is saved at `DATA_HOME/english_emo_data/sp_model.model`
+  * The `word2token.py` script tokenizes English text using a unigram model with a vocabulary size of `VOCAL_SIZE` for ASR training. This unigram model is saved at `DATA_HOME/english_emo_data/sp_model.model` and vocab dict is saved at `DATA_HOME/english_emo_data/sp_model.txt`
 
     ```shell
     VOCAL_SIZE=10000
@@ -63,7 +63,7 @@
     ${DATA_HOME}/english_emo_data/trans_whisper.tsv \
     > ${DATA_HOME}/english_emo_data/wer_detail.log
 
-    # will get a wer.json, can be fed into training task
+    # will get a whisper_wer.json, can be fed into training task
     python /Work20/wangtianrui/codes/PM-ECVC/fairseq_evc/examples/evc/pretreatment/trans/merge_wer.py \
       --data-home ${DATA_HOME} 
     ```

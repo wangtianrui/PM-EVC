@@ -12,9 +12,11 @@
 ## Configure the Environment for Codes
 
 ```shell
-conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
+conda create -n pmevc python=3.8
+conda activate pmevc
+pip install pip==23.0.1
 pip install -r requirements.txt
-pip install s3prl
+conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.8 -c pytorch -c nvidia
 cd fairseq_evc
 pip install -e ./
 ```
@@ -44,7 +46,7 @@ Follow the steps in [`./pretreatment`](https://github.com/wangtianrui/PM-EVC/blo
 
         GPU_NUM=2
 
-        DATA=${DATA_HOME}/english_emo_data/ # a directory contains {train_info, dev_info}.tsv, 
+        DATA=${DATA_HOME}/english_emo_data/ # a directory contains {train_info, dev_info}.tsv and vocab dict sp_model.txt, 
         AUDIO_HOME=${DATA_HOME}    # a root path of audio data, ${DATA_HOME} in data pretreatment 
         PITCH_HOME=${DATA_HOME}/pitch   # a root path of pitch data (it's noly needed for ProgRE)
         FBANK_HOME=${DATA_HOME}/fbank   # a root path of mel-spec data
@@ -247,7 +249,7 @@ python -u /Work20/2023/wangtianrui/codes/util_repos/fairseq_zhikangniu/examples/
 
 cd hifi_gan
 for item in ("spk_cv_fbank" "emo_cv_fbank" "spk_emo_fbank" "reco_fbank"); do
-    python -u inference_ecvc.py \
+    python -u infer.py \
     --fbank ${OUT_HOME}/${item}.npy \
     --checkpoint_path ${HIFI_SAVE}/$(ls  ${HIFI_SAVE} | grep -E '^g_[0-9]{8}$' | sort -V | tail -n 1)
 done

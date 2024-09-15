@@ -1,6 +1,5 @@
 lightning>=2.0.0
 torchmetrics>=0.11.4
-hydra-core==1.3.2
 hydra-colorlog==1.2.0
 hydra-optuna-sweeper==1.2.0
 rootutils       # standardizing the project root setup
@@ -21,4 +20,6 @@ matplotlib
 pandas
 conformer==0.3.2
 diffusers 
-s3prl
+s3prl==0.4.10
+transformers==4.28.0
+tiktoken

@@ -25,7 +25,7 @@ distributed_training:
   find_unused_parameters: true
 
 task:
-  _name: ec_pretraining
+  _name: evc
   data: ???    # a directory contains {train_info,dev_info}.tsv 
   audio_home: ???    # a root path of audio data
   pitch_home: ???   # a root path of pitch data (it's noly needed for ProgRE)
@@ -36,7 +36,7 @@ task:
   pad_audio: true
   random_crop: false
   normalize: false # s3prl has norm, so there set to false, progre needs true
-  vocab_name: sp_model_10000.txt
+  vocab_name: sp_model.txt
   change_content: whisper
   stage: 1
   downstream_checkpoint: ""

@@ -7,11 +7,12 @@ import json
 import torch
 from scipy.io.wavfile import write
 from env import AttrDict
-from meldataset import mel_spectrogram, MAX_WAV_VALUE, load_wav
 from models import Generator
 import numpy as np
 h = None
 device = torch.device('cuda')
+
+MAX_WAV_VALUE = 32768.0
 
 import os
 import shutil
