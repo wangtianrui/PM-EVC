@@ -3,7 +3,7 @@
     PM-EVC
     </h1>
     <p>
-    This is the official implement of A Controllable Emotion Voice Conversion Framework with Pre-trained Speech Representations. (Submitted to ICASSP 2025) <a href="https://wangtianrui.github.io/pm_evc/">There are some demos.</a>
+    This is the official implement of A Controllable Emotion Voice Conversion Framework with Pre-trained Speech Representations. (Submitted to ICASSP 2025) <a href="https://wangtianrui.github.io/pm_evc/">There are some demos.</a> <a href="https://wangtianrui.github.io/pm_evc/#abs"> We add detail ablation study.</a>
     </p>
     <p>
     </p>
